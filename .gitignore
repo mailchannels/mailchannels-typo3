@@ -1,0 +1,6 @@
+vendor/
+contract/vendor/
+.native-work/
+__pycache__/
+*.pyc
+.ci-venv/
