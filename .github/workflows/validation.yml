@@ -1,0 +1,25 @@
+name: TYPO3 candidate validation
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Prepare local fixture tools
+        run: |
+          python3 -m venv .ci-venv
+          .ci-venv/bin/python -m pip install cryptography==45.0.3
+          docker build -t mailchannels-typo3-contract:php84 .
+      - name: Install locked contract dependencies
+        run: docker run --rm -v "$PWD:/app" -w /app/contract mailchannels-typo3-contract:php84 composer install --no-interaction --prefer-dist --no-progress --no-plugins --no-scripts
+      - name: Offline transport contracts
+        run: .ci-venv/bin/python check.py
+      - name: Internal-network HTTPS fixtures
+        run: .ci-venv/bin/python tls/run.py
+      - name: Fresh installed-site and removal fixtures
+        run: .ci-venv/bin/python native/run.py

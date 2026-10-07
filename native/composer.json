@@ -1,0 +1,41 @@
+{
+  "name": "mailchannels/typo3-native-fixture",
+  "description": "Disposable TYPO3 site, never production",
+  "type": "project",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": "~8.4.0",
+    "typo3/cms-core": "14.3.7",
+    "typo3/cms-backend": "14.3.7",
+    "typo3/cms-frontend": "14.3.7",
+    "typo3/cms-install": "14.3.7",
+    "typo3/cms-fluid": "14.3.7",
+    "typo3/cms-extbase": "14.3.7",
+    "typo3/cms-form": "14.3.7",
+    "typo3/cms-felogin": "14.3.7",
+    "mailchannels/typo3-email-api-candidate": "dev-main"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../..",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "mailchannels/typo3-email-api-candidate": "dev-main"
+        }
+      }
+    }
+  ],
+  "config": {
+    "allow-plugins": {
+      "typo3/class-alias-loader": true,
+      "typo3/cms-composer-installers": true
+    }
+  },
+  "extra": {
+    "typo3/cms": {
+      "web-dir": "public"
+    }
+  }
+}
