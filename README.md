@@ -26,7 +26,7 @@ python tls/run.py
 python native/run.py
 ```
 
-Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 85 fresh-site
+Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 89 fresh-site
 checks. The native runner creates and deletes a disposable site/database; TLS
 fixtures remove their containers, network and temporary certificate material.
 Exact completion markers matter because TYPO3 may handle exceptions while exiting 0.
@@ -42,7 +42,14 @@ TYPO3 14.3.7 stock mail templates fail when a FileUpload value is an ObjectStora
 the core display resolver returns a string while the view helper marks the original
 value as iterable. Fluid then rejects the `f:for` input before any API request. The
 native suite reproduces this directly in Fluid without the MailChannels transport.
-This is an unresolved stock-template compatibility gate, not a supported scenario.
+This remains an unresolved stock-template compatibility gate for normal installations.
+
+A proposed core patch is available in [native/core-display-fix](native/core-display-fix/README.txt).
+Run `python native/run.py --test-core-display-fix` to compare it in a separate disposable
+site. This mode passes the same 89 checks while requiring stock multi-file plain/HTML
+rendering and attachment preservation to succeed. It also checks array and scalar
+field rendering. The patch is never installed by the extension; upstream review,
+core regression tests and a supported released fix are still needed.
 
 A separate custom-template test verifies two attachments, exact binary bytes and
 filenames, disabled uploads and an empty collection. Stock templates pass for a

@@ -18,14 +18,25 @@ check(count($p['attachments'])===1 && $p['attachments'][0]['filename']==='fixtur
 $secondBytes="Second upload\n\x00\x01\xfe";
 file_put_contents($directory.'/second.txt',$secondBytes);
 $secondFile=$factory->getFileObjectFromCombinedIdentifier('0:/fileadmin/second.txt');
+$secondIndexed=(new \TYPO3\CMS\Core\Resource\Index\Indexer($secondFile->getStorage()))->createIndexEntry($secondFile->getIdentifier());
+$db->insert('sys_file_reference',['uid_local'=>$secondIndexed->getUid(),'uid_foreign'=>0,'tablenames'=>'tt_content','fieldname'=>'assets','pid'=>0]);
+$secondReference=new \TYPO3\CMS\Extbase\Domain\Model\FileReference();
+$secondReference->setOriginalResource($factory->getFileReferenceObject((int)$db->lastInsertId(),[],true));
 $multiple=new \TYPO3\CMS\Extbase\Persistence\ObjectStorage();
-$multiple->attach($extbaseReference);$multiple->attach($secondFile);
+$multiple->attach($extbaseReference);$multiple->attach($secondReference);
+$patched=getenv('TYPO3_TEST_CORE_DISPLAY_FIX')==='1';
 $runtime['attachment']=$multiple;
 $subject->setOptions($stock);$context=new \TYPO3\CMS\Form\Domain\Finishers\FinisherContext($runtime,$request);
 $before=count($payloads);$subject->execute($context);
-check($context->isCancelled() && count($payloads)===$before,'stock multi-file template fails before API transport');
-$failure=$logger->records[array_key_last($logger->records)][2]['exception'];
-check($failure->getPrevious() instanceof \MailChannels\Typo3\Mail\TransportFailure && $failure->getPrevious()->outcome==='message_unsupported','stock multi-file rendering failure is not reported as acceptance');
+if ($patched) {
+    check(!$context->isCancelled() && count($payloads)===$before+1,'proposed core fix lets stock multi-file finisher send once');
+    $p=$payloads[$before];
+    check(array_column($p['attachments'],'filename')===['fixture.txt','second.txt'] && array_map(fn($a)=>base64_decode($a['content'],true),$p['attachments'])===[$bytes,$secondBytes],'stock multi-file mail preserves both referenced filenames and binary contents');
+} else {
+    check($context->isCancelled() && count($payloads)===$before,'stock multi-file template fails before API transport');
+    $failure=$logger->records[array_key_last($logger->records)][2]['exception'];
+    check($failure->getPrevious() instanceof \MailChannels\Typo3\Mail\TransportFailure && $failure->getPrevious()->outcome==='message_unsupported','stock multi-file rendering failure is not reported as acceptance');
+}
 $coreMail=$container->get(\TYPO3\CMS\Core\Mail\TemplatedEmailFactory::class)
     ->createWithOverrides($stock['templateRootPaths'],[],[],$request)
     ->setTemplate('Default')->format(\TYPO3\CMS\Core\Mail\FluidEmail::FORMAT_BOTH)
@@ -35,13 +46,18 @@ $coreFailure=false;
 try {$coreMail->getBody();} catch (\TYPO3Fluid\Fluid\Core\ViewHelper\InvalidArgumentValueException $e) {
     $coreFailure=str_contains($e->getMessage(),'"each"') && str_contains($e->getMessage(),'"string"');
 }
-check($coreFailure,'stock multi-file rendering fails in native Fluid without MailChannels transport');
+if ($patched) {
+    check(!$coreFailure && str_contains($coreMail->getTextBody(),'fixture.txt') && str_contains($coreMail->getTextBody(),'second.txt') && str_contains($coreMail->getHtmlBody(),'fixture.txt') && str_contains($coreMail->getHtmlBody(),'second.txt'),'proposed core fix renders both filenames in stock plain and HTML without transport');
+} else {
+    check($coreFailure,'stock multi-file rendering fails in native Fluid without MailChannels transport');
+}
+$before=count($payloads);
 // Separate transport coverage uses the existing custom template. This does not
 // establish compatibility of the failing stock multi-file template.
 $custom=array_replace($stock,['templateName'=>'FormFixture','templateRootPaths'=>['/app/native/templates/']]);
 $subject->setOptions($custom);$context=new \TYPO3\CMS\Form\Domain\Finishers\FinisherContext($runtime,$request);
 $subject->execute($context);$p=$payloads[$before];
-check(!$context->isCancelled() && count($payloads)===$before+1,'mixed native ObjectStorage uploads send once');
+check(!$context->isCancelled() && count($payloads)===$before+1,'native ObjectStorage references send once');
 check(array_column($p['attachments'],'filename')===['fixture.txt','second.txt'],'multiple upload filenames and order preserved');
 check(array_map(fn($a)=>base64_decode($a['content'],true),$p['attachments'])===[$bytes,$secondBytes],'multiple upload binary contents preserved');
 check(str_contains($p['content'][0]['value'],'Visitor ✓') && str_contains($p['content'][1]['value'],'Visitor ✓'),'custom multi-file mail retains plain and HTML form content');
@@ -52,6 +68,23 @@ $runtime['attachment']=new \TYPO3\CMS\Extbase\Persistence\ObjectStorage();
 $subject->setOptions($custom);$context=new \TYPO3\CMS\Form\Domain\Finishers\FinisherContext($runtime,$request);
 $before=count($payloads);$subject->execute($context);
 check(!$context->isCancelled() && count($payloads)===$before+1 && !isset($payloads[$before]['attachments']),'empty ObjectStorage sends without attachments');
+
+// A mixed collection remains supported at the EmailFinisher transport boundary.
+$mixed=new \TYPO3\CMS\Extbase\Persistence\ObjectStorage();$mixed->attach($extbaseReference);$mixed->attach($secondFile);
+$runtime['attachment']=$mixed;$subject->setOptions($custom);
+$context=new \TYPO3\CMS\Form\Domain\Finishers\FinisherContext($runtime,$request);
+$before=count($payloads);$subject->execute($context);
+check(!$context->isCancelled() && count($payloads)===$before+1 && array_map(fn($a)=>base64_decode($a['content'],true),$payloads[$before]['attachments'])===[$bytes,$secondBytes],'mixed reference and native File collection preserves both contents');
+
+// Guard the other stock-template branch: processed array values must stay iterable.
+$page->createElement('choices','Text')->setLabel('Choices');
+$definition->getElementByIdentifier('choices')->setProperty('options',['one'=>'Choice One','two'=>'Choice Two']);
+$runtime['choices']=['one','two'];$runtime['attachment']=$extbaseReference;
+$subject->setOptions($stock);$context=new \TYPO3\CMS\Form\Domain\Finishers\FinisherContext($runtime,$request);
+$before=count($payloads);$subject->execute($context);$p=$payloads[$before];
+check(!$context->isCancelled() && count($payloads)===$before+1,'stock array-valued field sends once');
+check(str_contains($p['content'][0]['value'],'Choice One') && str_contains($p['content'][0]['value'],'Choice Two') && str_contains($p['content'][1]['value'],'Choice One') && str_contains($p['content'][1]['value'],'Choice Two'),'stock array display values retain both choices in plain and HTML');
+check(str_contains($p['content'][0]['value'],'Visitor ✓') && str_contains($p['content'][1]['value'],'Visitor ✓'),'stock scalar display value remains rendered beside array field');
 
 // Run the real FormRuntime finisher loop through public render(). Only the
 // completed-page state is seeded; no replacement loop or finisher subclass.

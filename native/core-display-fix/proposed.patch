@@ -1,0 +1,17 @@
+--- a/typo3/sysext/form/Classes/ViewHelpers/RenderFormValueViewHelper.php
++++ b/typo3/sysext/form/Classes/ViewHelpers/RenderFormValueViewHelper.php
+@@ -74,11 +74,12 @@
+                 ->getViewHelperVariableContainer()
+                 ->get(RenderRenderableViewHelper::class, 'formRuntime');
+             $value = $formRuntime[$element->getIdentifier()];
++            $processedValue = $this->formValueResolver->resolveDisplayValue($element, $value, $formRuntime);
+             $data = [
+                 'element' => $element,
+                 'value' => $value,
+-                'processedValue' => $this->formValueResolver->resolveDisplayValue($element, $value, $formRuntime),
+-                'isMultiValue' => is_iterable($value),
++                'processedValue' => $processedValue,
++                'isMultiValue' => is_iterable($processedValue),
+             ];
+         }
+         $variableProvider = new ScopedVariableProvider($this->renderingContext->getVariableProvider(), new StandardVariableProvider([$this->arguments['as'] => $data]));

@@ -23,3 +23,5 @@ jobs:
         run: .ci-venv/bin/python tls/run.py
       - name: Fresh installed-site and removal fixtures
         run: .ci-venv/bin/python native/run.py
+      - name: Proposed core display fix comparison (disposable vendor only)
+        run: .ci-venv/bin/python native/run.py --test-core-display-fix
