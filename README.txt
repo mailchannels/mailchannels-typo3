@@ -20,8 +20,12 @@ Do not activate this candidate on production. First validate a disposable instal
 TYPO3 site, including automatic listener registration, Fluid/body rendering, reset/
 form/backend mail, permissions, lifecycle, serialization and all required queues.
 The standalone fixture verifies full Composer-site boot, FluidEmail conversion,
-native reset tokens, form finishers, stock templates/stored-file attachment and
-removal/recovery. It does not verify browser submission or safe queue handling. Direct-mode configuration needs protected server settings for the
+native reset tokens, form finishers, stock single-file templates, persisted FAL references, custom-template multi-file
+attachments, finisher chains and removal/recovery. Stock multi-file templates fail
+in TYPO3 14.3.7 before API dispatch: the display value is a string but the native
+view helper marks the input as iterable. This remains a release compatibility gate.
+A confirmation failure does not roll back an earlier accepted receiver email;
+rendering the chain again sends both emails again. Do not blindly replay submissions. It does not verify browser submission or safe queue handling. Direct-mode configuration needs protected server settings for the
 API key and exact allowed sender list; there is no admin secret-storage UI.
 
 The guard rejects DSN/spool conflicts and stale credential/policy/routing snapshots

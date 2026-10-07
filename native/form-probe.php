@@ -14,7 +14,7 @@ try {
  $settings=array_replace($original,['transport'=>ApiTransport::class,'dsn'=>'','transport_spool_type'=>'','mailchannels_api_key'=>'synthetic-only','mailchannels_allowed_senders'=>['sender@example.com']]);
  $GLOBALS['TYPO3_CONF_VARS']['MAIL']=$settings;
  $payloads=[];$status=202;
- $client=new \GuzzleHttp\Client(['handler'=>function($request,$options)use(&$payloads,&$status){$payloads[]=json_decode((string)$request->getBody(),true,512,JSON_THROW_ON_ERROR);return \GuzzleHttp\Promise\Create::promiseFor(new \GuzzleHttp\Psr7\Response($status,[],json_encode(['results'=>[['index'=>0,'status'=>'sent']]])));}]);
+ $client=new \GuzzleHttp\Client(['handler'=>function($request,$options)use(&$payloads,&$status){$payloads[]=json_decode((string)$request->getBody(),true,512,JSON_THROW_ON_ERROR);return \GuzzleHttp\Promise\Create::promiseFor(new \GuzzleHttp\Psr7\Response(is_array($status)?array_shift($status):$status,[],json_encode(['results'=>[['index'=>0,'status'=>'sent']]])));}]);
  $events=$container->get(\Psr\EventDispatcher\EventDispatcherInterface::class);
  $mailer=new Mailer(new ApiTransport($settings,$client),$events);
  $logger=new class extends \Psr\Log\AbstractLogger {public array $records=[];public function log($level,string|\Stringable $message,array $context=[]):void{$this->records[]=[$level,$message,$context];}};
@@ -75,6 +75,7 @@ try {
  $subject->setOptions(array_replace($stock,['attachUploads'=>false,'addHtmlPart'=>'0']));$context=new FinisherContext($runtime,$request);$subject->execute($context);
  check(!$context->isCancelled() && count($payloads)===4 && !isset($payloads[3]['attachments']),'disabled upload attachment option omits file');
  check(count($payloads[3]['content'])===1 && $payloads[3]['content'][0]['type']==='text/plain','native string-zero HTML option produces plain-only message');
+ require __DIR__.'/form-file-chain-probe.php';
 } finally {$GLOBALS['TYPO3_CONF_VARS']['MAIL']=$original;}
 check($GLOBALS['TYPO3_CONF_VARS']['MAIL']===$original,'runtime mail settings restored');
 echo "TYPO3_FORM_COMPLETE $count checks; no provider calls\n";

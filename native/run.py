@@ -35,8 +35,8 @@ try:
     assert sum(line.startswith('PASS ') for line in text.splitlines())==13,text
     print(text,end='',flush=True)
     text=run(base+[image,'php','-d','disable_functions=mail','/app/native/form-probe.php'])
-    assert 'TYPO3_FORM_COMPLETE 21 checks; no provider calls' in text,text
-    assert sum(line.startswith('PASS ') for line in text.splitlines())==21,text
+    assert 'TYPO3_FORM_COMPLETE 43 checks; no provider calls' in text,text
+    assert sum(line.startswith('PASS ') for line in text.splitlines())==43,text
     print(text,end='',flush=True)
     # Remove only from this fresh project; Composer unlinks the path package.
     run(base+['-e','COMPOSER_ALLOW_SUPERUSER=1','-e','COMPOSER_DISABLE_NETWORK=1',image,'composer','remove','mailchannels/typo3-email-api-candidate','--no-interaction','--no-progress'],timeout=180)
@@ -51,7 +51,7 @@ try:
         assert sum(line.startswith('PASS ') for line in text.splitlines())==5,text
         print(text,end='',flush=True)
     assert (root/'Classes/Mail/ApiTransport.php').exists(),'Composer removal changed source candidate'
-    print('TYPO3_NATIVE_AND_LIFECYCLE_COMPLETE 63 checks',flush=True)
+    print('TYPO3_NATIVE_AND_LIFECYCLE_COMPLETE 85 checks',flush=True)
 finally:
     for worker in workers:subprocess.run(['docker','rm','-f',worker],capture_output=True)
     cleanup="from pathlib import Path; import shutil; [(shutil.rmtree(p) if p.is_dir() and not p.is_symlink() else p.unlink()) for p in Path('/site').iterdir()]"

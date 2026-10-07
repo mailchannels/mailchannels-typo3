@@ -26,20 +26,37 @@ python tls/run.py
 python native/run.py
 ```
 
-Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 63 fresh-site
+Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 85 fresh-site
 checks. The native runner creates and deletes a disposable site/database; TLS
 fixtures remove their containers, network and temporary certificate material.
 Exact completion markers matter because TYPO3 may handle exceptions while exiting 0.
 
 Native checks cover full container registration, Fluid rendering, reset token
-creation, form finisher execution, stock templates, a stored-file attachment,
+creation, form finisher execution, stock templates, stored-file/FileReference attachments and finisher-chain outcomes,
 and removal/recovery. They do not prove browser submission, upload authorization,
 provider delivery or directory publication. JavaScript/browser tests are not included.
 
+## Native form compatibility
+
+TYPO3 14.3.7 stock mail templates fail when a FileUpload value is an ObjectStorage:
+the core display resolver returns a string while the view helper marks the original
+value as iterable. Fluid then rejects the `f:for` input before any API request. The
+native suite reproduces this directly in Fluid without the MailChannels transport.
+This is an unresolved stock-template compatibility gate, not a supported scenario.
+
+A separate custom-template test verifies two attachments, exact binary bytes and
+filenames, disabled uploads and an empty collection. Stock templates pass for a
+single persisted FAL/Extbase reference. The real FormRuntime finisher loop is tested
+with seeded completed-page state: receiver success followed by confirmation failure
+keeps the first acceptance and suppresses later finishers. Rendering the chain again
+sends both emails again. There is no durable submission identity or rollback; never
+blindly replay an uncertain form submission. No browser upload or field authorization
+is exercised by these seeded fixtures.
+
 ## Release work still required
 
-Browser/controller workflows and upload validation, FileReference/multi-file input,
-finisher-chain orchestration, upgrades, supported-version/deployment review, durable
+Browser/controller workflows and upload validation, stock multi-file template
+compatibility, upgrades, supported-version/deployment review, durable
 queue semantics, company provider validation, publisher/key ownership and release
 review remain. Queues are rejected by ordinary preflight; safe queue sending is not
 implemented. A failed native password-reset send can replace the stored reset token.
