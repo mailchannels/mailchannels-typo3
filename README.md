@@ -1,7 +1,72 @@
 # MailChannels Email API for TYPO3
 
-Public development repository for an unreleased TYPO3 Email API transport candidate.
-Implementation and validation are prepared for review in a pull request. No package
-or TER release is published. Do not use in production.
+Unreleased transport candidate. **Do not use in production.** No Packagist or TER
+release exists. Package name and extension key remain provisional.
 
-Support: dev@mailchannels.com. License: GPL-2.0-or-later.
+The candidate maps native TYPO3/Symfony email to the MailChannels Email API and
+checks configuration before ordinary core mail dispatch. It preserves supported
+recipient roles, plain/HTML bodies and attachments, uses verified HTTPS, and does
+not automatically retry or fall back to SMTP.
+
+Current validation is limited to TYPO3 14.3.7, PHP 8.4.26 and SQLite. See
+[configuration and limitations](README.txt) before evaluating it. Support:
+dev@mailchannels.com. GPL-2.0-or-later; see [LICENSE](LICENSE).
+
+## Reproduce isolated validation
+
+Requires Docker, Python 3 and Python cryptography 45.0.3. Dependency/image retrieval
+uses the network. Mail probes use synthetic credentials, offline or internal Docker
+networks, and no provider email. Run from this repository root:
+
+```sh
+docker build -t mailchannels-typo3-contract:php84 .
+docker run --rm -v "$PWD:/app" -w /app/contract mailchannels-typo3-contract:php84 composer install --no-interaction --prefer-dist --no-progress --no-plugins --no-scripts
+python check.py
+python tls/run.py
+python native/run.py
+```
+
+Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 89 fresh-site
+checks. The native runner creates and deletes a disposable site/database; TLS
+fixtures remove their containers, network and temporary certificate material.
+Exact completion markers matter because TYPO3 may handle exceptions while exiting 0.
+
+Native checks cover full container registration, Fluid rendering, reset token
+creation, form finisher execution, stock templates, stored-file/FileReference attachments and finisher-chain outcomes,
+and removal/recovery. They do not prove browser submission, upload authorization,
+provider delivery or directory publication. JavaScript/browser tests are not included.
+
+## Native form compatibility
+
+TYPO3 14.3.7 stock mail templates fail when a FileUpload value is an ObjectStorage:
+the core display resolver returns a string while the view helper marks the original
+value as iterable. Fluid then rejects the `f:for` input before any API request. The
+native suite reproduces this directly in Fluid without the MailChannels transport.
+This remains an unresolved stock-template compatibility gate for normal installations.
+
+A proposed core patch is available in [native/core-display-fix](native/core-display-fix/README.txt).
+Run `python native/run.py --test-core-display-fix` to compare it in a separate disposable
+site. This mode passes the same 89 checks while requiring stock multi-file plain/HTML
+rendering and attachment preservation to succeed. It also checks array and scalar
+field rendering. The patch is never installed by the extension; upstream review,
+core regression tests and a supported released fix are still needed.
+
+A separate custom-template test verifies two attachments, exact binary bytes and
+filenames, disabled uploads and an empty collection. Stock templates pass for a
+single persisted FAL/Extbase reference. The real FormRuntime finisher loop is tested
+with seeded completed-page state: receiver success followed by confirmation failure
+keeps the first acceptance and suppresses later finishers. Rendering the chain again
+sends both emails again. There is no durable submission identity or rollback; never
+blindly replay an uncertain form submission. No browser upload or field authorization
+is exercised by these seeded fixtures.
+
+## Release work still required
+
+Browser/controller workflows and upload validation, stock multi-file template
+compatibility, upgrades, supported-version/deployment review, durable
+queue semantics, company provider validation, publisher/key ownership and release
+review remain. Queues are rejected by ordinary preflight; safe queue sending is not
+implemented. A failed native password-reset send can replace the stored reset token.
+A form finisher handles send failure by cancelling its context and rendering an error.
+
+Public source alone does not register a package or establish TER availability.
