@@ -30,7 +30,7 @@ python native/run.py
 The native runner resolves the locally built image tag to its image ID once and records that
 identity with the run; it does not require an image ID from another machine.
 
-Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 149 fresh-site
+Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 174 fresh-site
 checks. The native runner creates and deletes a disposable site/database; TLS
 fixtures remove their containers, network and temporary certificate material.
 Exact completion markers matter because TYPO3 may handle exceptions while exiting 0.
@@ -50,7 +50,7 @@ This remains an unresolved stock-template compatibility gate for normal installa
 
 A proposed core patch is available in [native/core-display-fix](native/core-display-fix/README.txt).
 Run `python native/run.py --test-core-display-fix` to compare it in a separate disposable
-site. This mode passes the same 149 checks while requiring stock multi-file plain/HTML
+site. This mode passes the same 174 checks while requiring stock multi-file plain/HTML
 rendering and attachment preservation to succeed. It also checks array and scalar
 field rendering. The patch is never installed by the extension; upstream review,
 core regression tests and a supported released fix are still needed.
@@ -63,6 +63,13 @@ keeps the first acceptance and suppresses later finishers. Rendering the chain a
 sends both emails again. There is no durable submission identity or rollback; never
 blindly replay an uncertain form submission. No browser upload or field authorization
 is exercised by these seeded fixtures.
+
+A 25-check submission probe builds the persisted fixture with the native ArrayFormFactory and
+renders it through `FormDefinition::bind()` under native FormRuntime state handling. It covers
+the signed `__state` round trip with Unicode values, malformed email and an omitted required
+field, missing and tampered state, state sent by GET, and the cached-context rules: under `USER`
+or without a content object, a POST is discarded into a fresh first page, and the same signed
+fields complete once under `USER_INT` with a form session. It does not dispatch the controller.
 
 A persisted YAML fixture also runs through native Extbase Bootstrap, RequestBuilder,
 Dispatcher, FormFrontendController, ArrayFormFactory, validators and native finishers
