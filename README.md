@@ -1,7 +1,8 @@
 # MailChannels Email API for TYPO3
 
 Unreleased transport candidate. **Do not use in production.** No Packagist or TER
-release exists. Package name and extension key remain provisional.
+release exists. The TER extension key `mailchannels_email_api` is registered;
+the Composer package is `mailchannels/typo3-email-api`.
 
 The candidate maps native TYPO3/Symfony email to the MailChannels Email API and
 checks configuration before ordinary core mail dispatch. It preserves supported

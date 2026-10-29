@@ -1,5 +1,5 @@
 {
-  "name": "mailchannels/typo3-email-api-candidate",
+  "name": "mailchannels/typo3-email-api",
   "description": "Unreleased MailChannels Email API transport candidate for TYPO3",
   "type": "typo3-cms-extension",
   "license": "GPL-2.0-or-later",
@@ -20,7 +20,7 @@
   },
   "extra": {
     "typo3/cms": {
-      "extension-key": "mailchannels_email_api_candidate"
+      "extension-key": "mailchannels_email_api"
     }
   },
   "support": {

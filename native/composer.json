@@ -13,7 +13,7 @@
     "typo3/cms-extbase": "14.3.7",
     "typo3/cms-form": "14.3.7",
     "typo3/cms-felogin": "14.3.7",
-    "mailchannels/typo3-email-api-candidate": "dev-main"
+    "mailchannels/typo3-email-api": "dev-main"
   },
   "repositories": [
     {
@@ -22,7 +22,7 @@
       "options": {
         "symlink": true,
         "versions": {
-          "mailchannels/typo3-email-api-candidate": "dev-main"
+          "mailchannels/typo3-email-api": "dev-main"
         }
       }
     }

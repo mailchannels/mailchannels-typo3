@@ -105,7 +105,7 @@ throw new RuntimeException('HTTP readiness deadline');
     run(['docker','rm',http])
     http=None
     # Remove only from this fresh project; Composer unlinks the path package.
-    run(base+['-e','COMPOSER_ALLOW_SUPERUSER=1','-e','COMPOSER_DISABLE_NETWORK=1',image,'composer','remove','mailchannels/typo3-email-api-candidate','--no-interaction','--no-progress'],timeout=180)
+    run(base+['-e','COMPOSER_ALLOW_SUPERUSER=1','-e','COMPOSER_DISABLE_NETWORK=1',image,'composer','remove','mailchannels/typo3-email-api','--no-interaction','--no-progress'],timeout=180)
     for mode in ['removed','dangling','restored']:
         if mode!='removed':
             transport='MailChannels\\Typo3\\Mail\\ApiTransport' if mode=='dangling' else 'null'
