@@ -1,0 +1,1 @@
+<f:section name="Subject">Fixture {label}</f:section>Hello {label}

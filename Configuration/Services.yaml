@@ -1,0 +1,4 @@
+services:
+  MailChannels\Typo3\Mail\ConfigurationGuard:
+    autowire: true
+    autoconfigure: true

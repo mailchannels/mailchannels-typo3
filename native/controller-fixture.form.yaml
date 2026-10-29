@@ -1,0 +1,38 @@
+identifier: controllerfixture
+label: Controller fixture
+prototypeName: standard
+type: Form
+renderingOptions:
+  submitButtonLabel: Submit
+renderables:
+  - identifier: page
+    label: Contact
+    type: Page
+    renderables:
+      - identifier: visitor
+        label: Visitor
+        type: Text
+        validators:
+          - identifier: NotEmpty
+      - identifier: email
+        label: Email
+        type: Text
+        validators:
+          - identifier: NotEmpty
+          - identifier: EmailAddress
+finishers:
+  - identifier: EmailToReceiver
+    options:
+      senderAddress: sender@example.com
+      recipients:
+        recipient@example.com: Recipient
+      replyToRecipients:
+        '{email}': '{visitor}'
+      subject: 'Contact {visitor}'
+      templateName: FormFixture
+      templateRootPaths:
+        100: /app/native/templates/
+      attachUploads: false
+  - identifier: Confirmation
+    options:
+      message: CONTROLLER-COMPLETE

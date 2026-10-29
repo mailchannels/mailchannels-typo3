@@ -1,0 +1,25 @@
+{
+  "name": "mailchannels/typo3-transport-contract",
+  "description": "Isolated TYPO3 transport selection contract fixture, not an extension",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": "^8.3",
+    "typo3/cms-core": "14.3.7",
+    "mailchannels/typo3-email-api-candidate": "dev-main"
+  },
+  "config": {
+    "allow-plugins": false
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "..",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "mailchannels/typo3-email-api-candidate": "dev-main"
+        }
+      }
+    }
+  ]
+}

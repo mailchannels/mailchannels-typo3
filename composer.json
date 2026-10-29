@@ -1,0 +1,29 @@
+{
+  "name": "mailchannels/typo3-email-api-candidate",
+  "description": "Unreleased MailChannels Email API transport candidate for TYPO3",
+  "type": "typo3-cms-extension",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": "~8.4.0",
+    "ext-curl": "*",
+    "ext-mbstring": "*",
+    "typo3/cms-core": "14.3.7",
+    "guzzlehttp/guzzle": "^8.2",
+    "guzzlehttp/psr7": "^3.1",
+    "symfony/mailer": "^7.4",
+    "symfony/mime": "^7.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "MailChannels\\Typo3\\": "Classes/"
+    }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "mailchannels_email_api_candidate"
+    }
+  },
+  "support": {
+    "email": "dev@mailchannels.com"
+  }
+}
