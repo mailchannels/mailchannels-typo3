@@ -26,7 +26,10 @@ python tls/run.py
 python native/run.py
 ```
 
-Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 89 fresh-site
+The native runner resolves the locally built image tag to its image ID once and records that
+identity with the run; it does not require an image ID from another machine.
+
+Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 149 fresh-site
 checks. The native runner creates and deletes a disposable site/database; TLS
 fixtures remove their containers, network and temporary certificate material.
 Exact completion markers matter because TYPO3 may handle exceptions while exiting 0.
@@ -46,7 +49,7 @@ This remains an unresolved stock-template compatibility gate for normal installa
 
 A proposed core patch is available in [native/core-display-fix](native/core-display-fix/README.txt).
 Run `python native/run.py --test-core-display-fix` to compare it in a separate disposable
-site. This mode passes the same 89 checks while requiring stock multi-file plain/HTML
+site. This mode passes the same 149 checks while requiring stock multi-file plain/HTML
 rendering and attachment preservation to succeed. It also checks array and scalar
 field rendering. The patch is never installed by the extension; upstream review,
 core regression tests and a supported released fix are still needed.
@@ -60,9 +63,50 @@ sends both emails again. There is no durable submission identity or rollback; ne
 blindly replay an uncertain form submission. No browser upload or field authorization
 is exercised by these seeded fixtures.
 
+A persisted YAML fixture also runs through native Extbase Bootstrap, RequestBuilder,
+Dispatcher, FormFrontendController, ArrayFormFactory, validators and native finishers
+with stock form/controller templates. Its 20 checks cover generated action/hidden/submit
+controls, content-UID namespaces, Unicode payloads, malformed email, missing/tampered
+state, signed GET and a cacheable render action under `USER`. Confirmation is observed
+in returned markup; only the mailer's downstream API client is replaced by a memory sink.
+Native anonymous frontend authentication is initialized for the stock honeypot.
+Missing-state POST and signed GET return first-page blank-state bytes and no email or
+completion, while stock Fluid re-displays their submitted input after controller forwarding.
+This does not prove accepted runtime values, browser sessions, CSRF, cross-user ownership,
+HTTP middleware, page-cache responses or cached perform rescheduling.
+
+A separate 24-check HTTP fixture runs Core Application::run from PHP cli-server SAPI globals,
+through the stock frontend middleware and native EXTBASEPLUGIN rescheduling. Real PAGE/CONTENT
+records render persisted YAML with stock form templates. Multipart submissions exercise a required
+single text upload, invalid-email correction with the returned signed session/resource controls,
+independent ordinary cookie jars, missing upload/state, server-detected PNG rejection and the
+inclusive 1024-byte native size limit. Native EmailToReceiver and Confirmation remain in the flow;
+only downstream API capture is replaced with an inert in-memory 202 response.
+
+The HTTP server and client share one offline container, use loopback sockets and finite deadlines,
+and publish no host port. The runner retains synthetic payloads, hashed cookie observations,
+installed source/schema identities and cleanup diagnostics beside its result log before deleting
+its own site and server. Invalid email with a valid upload intentionally persists one FAL file for
+correction. Multipart temporary files are distinct from those persistent FAL uploads.
+
+This slice proves the ordinary anonymous single-file workflow on the pinned runtime. It does not
+prove cookie-bound CSRF, cross-user file ownership, browser cookie policy, a page-cache hit,
+concurrency, expiry or provider delivery. Warm GET is an observation only.
+A further 16 HTTP checks submit two distinct text files with invalid email through a standard
+multiple upload form and stock Default mail templates. The same submitter reuses its actual cookie
+and returned signed controls for a second invalid submission and an email-only correction, without
+new file parts. Both indexed FAL files, pointer order and exact bytes remain intact. Stock TYPO3
+returns the configured finisher failure marker and a sanitized message_unsupported diagnostic,
+with no API payload. The opt-in disposable core patch instead requires one confirmation and one
+payload with both filenames in plain/HTML bodies and two exact attachments. Five new requests bring
+the HTTP total to 40. Setup and observations are retained separately.
+This covers two files on the pinned runtime; multiple:true can use ObjectStorage even for one file.
+
+The explicit core session-fixation TODO and stock multi-file template gate remain unresolved.
+
 ## Release work still required
 
-Browser/controller workflows and upload validation, stock multi-file template
+Browser workflows and stronger CSRF/upload ownership guarantees, stock multi-file template
 compatibility, upgrades, supported-version/deployment review, durable
 queue semantics, company provider validation, publisher/key ownership and release
 review remain. Queues are rejected by ordinary preflight; safe queue sending is not
