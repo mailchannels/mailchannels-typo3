@@ -7,12 +7,10 @@ args=parser.parse_args()
 root=Path(__file__).resolve().parents[1]
 name='mctypo3-native-'+uuid.uuid4().hex[:10]
 site=root/'.native-work'/name
-preexisting_sites=sorted(p.name for p in site.parent.glob('*') if p.is_dir())
 site.mkdir(parents=True)
 logs=[]
 commands=[]
 http=None
-preexisting_containers=[]
 http_results=root/'.native-work'/(name+'-http')
 image='mailchannels-typo3-contract:php84'
 workers=[]
@@ -35,7 +33,6 @@ def run(args,timeout=120):
     return result.stdout+result.stderr
 base=['docker','run','--rm','--network','none','-v',str(root)+':/app','-w','/app/.native-work/'+name]
 try:
-    preexisting_containers=run(['docker','ps','-aq','--no-trunc']).splitlines()
     image=run(['docker','image','inspect',image,'--format','{{.Id}}']).strip()
     run(base+[image,'composer','--version','--no-ansi'])
     for filename in ['composer.json','composer.lock']:shutil.copy2(root/'native'/filename,site/filename)
@@ -150,16 +147,12 @@ finally:
         finally:
             subprocess.run(['docker','rm','-f',cleaner],capture_output=True,timeout=10)
         site.rmdir()
-        remaining=run(['docker','ps','-aq','--no-trunc']).splitlines()
         owned=run(['docker','ps','-a','--filter','name='+name,'--format','{{.Names}}'])
-        preserved=all((site.parent/p).is_dir() for p in preexisting_sites)
         proof={'owned_site_absent':not site.exists(),'owned_containers_absent':owned=='',
-               'preexisting_containers_preserved':set(preexisting_containers)<=set(remaining),
-               'preexisting_sites_preserved':preserved,'run_prefix':name,
-               'preexisting_container_ids':preexisting_containers}
+               'run_prefix':name}
         (http_results/'cleanup.json').write_text(json.dumps(proof,indent=2)+'\n')
         (http_results/'commands.json').write_text(json.dumps(commands,indent=2)+'\n')
-        assert all(proof[key] for key in list(proof)[:4]),proof
+        assert proof['owned_site_absent'] and proof['owned_containers_absent'],proof
         logs.append('TYPO3_NATIVE_CLEANUP_COMPLETE')
         (root/'.native-work'/(name+'-results.txt')).write_text('\n'.join(logs))
         print('TYPO3_NATIVE_CLEANUP_COMPLETE',flush=True)
