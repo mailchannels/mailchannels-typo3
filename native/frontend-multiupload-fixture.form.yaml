@@ -1,0 +1,53 @@
+identifier: frontendmultiuploadfixture
+label: Frontend multiple upload fixture
+prototypeName: standard
+type: Form
+renderingOptions:
+  submitButtonLabel: Submit
+renderables:
+  - identifier: page
+    label: Contact
+    type: Page
+    renderables:
+      - identifier: visitor
+        label: Visitor
+        type: Text
+        validators:
+          - identifier: NotEmpty
+      - identifier: email
+        label: Email
+        type: Text
+        validators:
+          - identifier: NotEmpty
+          - identifier: EmailAddress
+      - identifier: attachment
+        label: Attachment
+        type: FileUpload
+        properties:
+          saveToFileMount: '1:/user_upload/'
+          multiple: true
+          allowRemoval: false
+          allowedMimeTypes:
+            - text/plain
+        validators:
+          - identifier: NotEmpty
+          - identifier: FileSize
+            options:
+              maximum: 1024B
+finishers:
+  - identifier: EmailToReceiver
+    options:
+      senderAddress: sender@example.com
+      recipients:
+        recipient@example.com: Recipient
+      replyToRecipients:
+        '{email}': '{visitor}'
+      subject: 'Contact {visitor}'
+      templateName: Default
+      templateRootPaths:
+        100: 'EXT:form/Resources/Private/Frontend/Templates/Finishers/Email/'
+      attachUploads: true
+      errorMessage: FRONTEND-MULTIUPLOAD-DELIVERY-FAILED
+  - identifier: Confirmation
+    options:
+      message: FRONTEND-MULTIUPLOAD-COMPLETE
