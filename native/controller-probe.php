@@ -183,9 +183,9 @@ try {
         'layoutRootPaths' => [$frontend . 'Layouts/'],
     ], 'settings' => [
         'persistenceIdentifier' =>
-            'EXT:mailchannels_email_api_candidate/native/controller-fixture.form.yaml',
+            'EXT:mailchannels_email_api/native/controller-fixture.form.yaml',
         'yamlSettingsOverrides' => ['persistenceManager' => ['allowedExtensionPaths' => [
-            'EXT:mailchannels_email_api_candidate/native/',
+            'EXT:mailchannels_email_api/native/',
         ]]],
     ]];
     $typoScript = new FrontendTypoScript(new RootNode(), [], [], []);

@@ -1,8 +1,8 @@
 MailChannels Email API for TYPO3 — unreleased candidate
 
-Composer package:mailchannels/typo3-email-api-candidate
-Provisional local extension key:mailchannels_email_api_candidate
-Neither name is a registered publisher identity or TER listing. Version0.0.0 in
+Composer package:mailchannels/typo3-email-api
+TER extension key:mailchannels_email_api (registered 2026-10-29 to the MailChannels
+TYPO3 publisher account; no version uploaded). The package is not on Packagist. Version0.0.0 in
 legacy metadata is a development placeholder, not a published release.
 Support:dev@mailchannels.com. GPL-2.0-or-later; see LICENSE.
 

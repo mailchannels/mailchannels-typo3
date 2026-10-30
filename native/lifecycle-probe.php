@@ -10,7 +10,7 @@ $mode=getenv('TYPO3_LIFECYCLE_MODE');
 if (!in_array($mode,['removed','dangling','restored'],true))throw new RuntimeException('Invalid fixture mode');
 $count=0;
 function check($ok,$label){global $count;if(!$ok)throw new RuntimeException($label);++$count;echo "PASS $label\n";}
-check(!$container->get(\TYPO3\CMS\Core\Package\PackageManager::class)->isPackageActive('mailchannels_email_api_candidate'),'removed package inactive after fresh boot');
+check(!$container->get(\TYPO3\CMS\Core\Package\PackageManager::class)->isPackageActive('mailchannels_email_api'),'removed package inactive after fresh boot');
 check(!class_exists('MailChannels\\Typo3\\Mail\\ApiTransport'),'removed transport no longer autoloads');
 $definitions=$container->get(ListenerProvider::class)->getAllListenerDefinitions();
 check(!isset($definitions[BeforeMailerSentMessageEvent::class]['mailchannels/direct-transport-configuration']),'removed guard absent from rebuilt container');

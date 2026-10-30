@@ -40,9 +40,9 @@ if ($upload['properties']['saveToFileMount'] !== $mount
 $setup = <<<'TS'
 @import 'EXT:form/Configuration/TypoScript/setup.typoscript'
 plugin.tx_form.settings {
-  persistenceIdentifier = EXT:mailchannels_email_api_candidate/native/frontend-fixture.form.yaml
+  persistenceIdentifier = EXT:mailchannels_email_api/native/frontend-fixture.form.yaml
   yamlSettingsOverrides.persistenceManager.allowedExtensionPaths {
-    100 = EXT:mailchannels_email_api_candidate/native/
+    100 = EXT:mailchannels_email_api/native/
   }
 }
 config.disableAllHeaderCode = 1

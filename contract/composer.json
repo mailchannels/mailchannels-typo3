@@ -5,7 +5,7 @@
   "require": {
     "php": "^8.3",
     "typo3/cms-core": "14.3.7",
-    "mailchannels/typo3-email-api-candidate": "dev-main"
+    "mailchannels/typo3-email-api": "dev-main"
   },
   "config": {
     "allow-plugins": false
@@ -17,7 +17,7 @@
       "options": {
         "symlink": true,
         "versions": {
-          "mailchannels/typo3-email-api-candidate": "dev-main"
+          "mailchannels/typo3-email-api": "dev-main"
         }
       }
     }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "41d194674de7a6fe99919dfcb70195ee",
+    "content-hash": "1ba1cdbf6e27b8e06cbad48c2b4a4082",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1201,12 +1201,12 @@
             "time": "2025-10-31T12:28:27+00:00"
         },
         {
-            "name": "mailchannels/typo3-email-api-candidate",
+            "name": "mailchannels/typo3-email-api",
             "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "..",
-                "reference": "6b617f6dbe8dc38e7117cabe548f518941fab8b7"
+                "reference": "0996e5ad33e3ff514dc3580fc54224bf9b4024e9"
             },
             "require": {
                 "ext-curl": "*",
@@ -1221,7 +1221,7 @@
             "type": "typo3-cms-extension",
             "extra": {
                 "typo3/cms": {
-                    "extension-key": "mailchannels_email_api_candidate"
+                    "extension-key": "mailchannels_email_api"
                 }
             },
             "autoload": {
@@ -5550,7 +5550,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "mailchannels/typo3-email-api-candidate": 20
+        "mailchannels/typo3-email-api": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

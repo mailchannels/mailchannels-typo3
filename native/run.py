@@ -59,6 +59,10 @@ try:
     assert 'TYPO3_FORM_COMPLETE 47 checks; no provider calls' in text,text
     assert sum(line.startswith('PASS ') for line in text.splitlines())==47,text
     print(text,end='',flush=True)
+    text=run(base+[image,'php','-d','disable_functions=mail','/app/native/form-submission-probe.php'])
+    assert 'TYPO3_FORM_SUBMISSION_COMPLETE 25 checks; no provider calls' in text,text
+    assert sum(line.startswith('PASS ') for line in text.splitlines())==25,text
+    print(text,end='',flush=True)
     text=run(base+[image,'php','-d','disable_functions=mail','/app/native/controller-probe.php'])
     assert 'TYPO3_FORM_CONTROLLER_COMPLETE 20 checks; no provider calls' in text,text
     assert sum(line.startswith('PASS ') for line in text.splitlines())==20,text
@@ -105,7 +109,7 @@ throw new RuntimeException('HTTP readiness deadline');
     run(['docker','rm',http])
     http=None
     # Remove only from this fresh project; Composer unlinks the path package.
-    run(base+['-e','COMPOSER_ALLOW_SUPERUSER=1','-e','COMPOSER_DISABLE_NETWORK=1',image,'composer','remove','mailchannels/typo3-email-api-candidate','--no-interaction','--no-progress'],timeout=180)
+    run(base+['-e','COMPOSER_ALLOW_SUPERUSER=1','-e','COMPOSER_DISABLE_NETWORK=1',image,'composer','remove','mailchannels/typo3-email-api','--no-interaction','--no-progress'],timeout=180)
     for mode in ['removed','dangling','restored']:
         if mode!='removed':
             transport='MailChannels\\Typo3\\Mail\\ApiTransport' if mode=='dangling' else 'null'
@@ -117,7 +121,7 @@ throw new RuntimeException('HTTP readiness deadline');
         assert sum(line.startswith('PASS ') for line in text.splitlines())==5,text
         print(text,end='',flush=True)
     assert (root/'Classes/Mail/ApiTransport.php').exists(),'Composer removal changed source candidate'
-    print('TYPO3_NATIVE_AND_LIFECYCLE_COMPLETE 149 checks',flush=True)
+    print('TYPO3_NATIVE_AND_LIFECYCLE_COMPLETE 174 checks',flush=True)
 finally:
     try:
         http_results.mkdir()

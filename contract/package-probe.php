@@ -11,12 +11,12 @@ use Symfony\Component\Mailer\Transport\NullTransport;
 use Symfony\Component\Mime\Email;
 $count=0;
 function check($ok,$label){global $count;if(!$ok)throw new RuntimeException($label);++$count;echo "PASS $label\n";}
-$installed=\Composer\InstalledVersions::getInstallPath('mailchannels/typo3-email-api-candidate');
+$installed=\Composer\InstalledVersions::getInstallPath('mailchannels/typo3-email-api');
 check(is_dir($installed),'local Composer package installed');
 check(class_exists(ApiTransport::class) && class_exists(ConfigurationGuard::class),'candidate PSR-4 autoload resolves without manual includes');
 $metadata=json_decode(file_get_contents($installed.'/composer.json'),true,512,JSON_THROW_ON_ERROR);
-check($metadata['type']==='typo3-cms-extension' && $metadata['extra']['typo3/cms']['extension-key']==='mailchannels_email_api_candidate','TYPO3 package identity present and provisional');
-$_EXTKEY='mailchannels_email_api_candidate';require $installed.'/ext_emconf.php';
+check($metadata['type']==='typo3-cms-extension' && $metadata['extra']['typo3/cms']['extension-key']==='mailchannels_email_api','TYPO3 package identity present');
+$_EXTKEY='mailchannels_email_api';require $installed.'/ext_emconf.php';
 check($EM_CONF[$_EXTKEY]['state']==='alpha' && $EM_CONF[$_EXTKEY]['version']==='0.0.0','legacy metadata explicitly unreleased alpha');
 check($EM_CONF[$_EXTKEY]['constraints']['depends']['typo3']==='14.3.7-14.3.7' && $metadata['require']['typo3/cms-core']==='14.3.7','metadata core constraints agree');
 $container=new ContainerBuilder();

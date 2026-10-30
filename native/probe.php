@@ -10,7 +10,7 @@ $container=Bootstrap::init($loader);
 $count=0;
 function check($ok,$label){global $count;if(!$ok)throw new RuntimeException($label);++$count;echo "PASS $label\n";}
 check(Environment::getProjectPath()===getcwd(),'full bootstrap uses isolated project');
-check($container->get(\TYPO3\CMS\Core\Package\PackageManager::class)->isPackageActive('mailchannels_email_api_candidate'),'candidate extension active in installed package manager');
+check($container->get(\TYPO3\CMS\Core\Package\PackageManager::class)->isPackageActive('mailchannels_email_api'),'candidate extension active in installed package manager');
 $db=$container->get(\TYPO3\CMS\Core\Database\ConnectionPool::class)->getConnectionForTable('be_users');
 check((int)$db->count('*','be_users',['username'=>'fixture-admin'])===1,'installed database contains synthetic administrator');
 $provider=$container->get(ListenerProvider::class);$definitions=$provider->getAllListenerDefinitions();
