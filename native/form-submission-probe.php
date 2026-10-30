@@ -223,7 +223,7 @@ try {
     $cachedValid = array_replace($cached, $values);
     foreach (['USER' => 'explicit cached content', null => 'missing content object'] as $context => $label) {
         [$runtime, $html, $sent] = submit('POST', $cachedValid, $context === '' ? null : $context);
-        check(firstPage($runtime) && $runtime['visitor'] === null && $runtime['email'] === null,
+        check(firstPage($runtime) && $runtime->getFormSession() === null && $runtime['visitor'] === null && $runtime['email'] === null,
             "$label POST discards signed state and values into fresh first page");
         check(nothingSent($sent, $html) && str_contains($html, '<form'),
             "$label POST rerenders native form with zero mail and zero completion");
