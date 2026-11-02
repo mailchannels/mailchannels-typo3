@@ -24,6 +24,6 @@
     }
   },
   "support": {
-    "email": "dev@mailchannels.com"
+    "issues": "https://github.com/mailchannels/mailchannels-typo3/issues"
   }
 }

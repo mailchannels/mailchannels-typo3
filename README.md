@@ -10,8 +10,14 @@ recipient roles, plain/HTML bodies and attachments, uses verified HTTPS, and doe
 not automatically retry or fall back to SMTP.
 
 Current validation is limited to TYPO3 14.3.7, PHP 8.4.26 and SQLite. See
-[configuration and limitations](README.txt) before evaluating it. Support:
-dev@mailchannels.com. GPL-2.0-or-later; see [LICENSE](LICENSE).
+[configuration and limitations](README.txt) before evaluating it.
+GPL-2.0-or-later; see [LICENSE](LICENSE).
+
+## Support
+
+This project is supported by the MailChannels team on a best-effort basis. The best way to get support is to file an issue on GitHub: https://github.com/mailchannels/mailchannels-typo3/issues
+
+If you are a MailChannels customer and have a problem with the operation of the MailChannels service, you can get support at https://support.mailchannels.com/
 
 ## Reproduce isolated validation
 
