@@ -4,7 +4,13 @@ Composer package:mailchannels/typo3-email-api
 TER extension key:mailchannels_email_api (registered 2026-10-29 to the MailChannels
 TYPO3 publisher account; no version uploaded). The package is not on Packagist. Version0.0.0 in
 legacy metadata is a development placeholder, not a published release.
-Support:dev@mailchannels.com. GPL-2.0-or-later; see LICENSE.
+GPL-2.0-or-later; see LICENSE.
+
+Support
+
+This project is supported by the MailChannels team on a best-effort basis. The best way to get support is to file an issue on GitHub: https://github.com/mailchannels/mailchannels-typo3/issues
+
+If you are a MailChannels customer and have a problem with the operation of the MailChannels service, you can get support at https://support.mailchannels.com/
 
 Current bounds:TYPO3 core14.3.7 and PHP8.4 only. These narrow package constraints
 match the available fixtures, not a completed supported-version/deployment matrix.
