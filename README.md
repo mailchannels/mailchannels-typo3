@@ -13,6 +13,13 @@ Current validation is limited to TYPO3 14.3.10, PHP 8.4.26 and SQLite. See
 [configuration and limitations](README.txt) before evaluating it.
 GPL-2.0-or-later; see [LICENSE](LICENSE).
 
+## Queued mail
+
+Queued (spooled) sending is not supported in this release. With the MailChannels transport
+selected, a configured `transport_spool_type` or DSN makes the extension refuse to send
+rather than queue: replaying a queued message could send it twice, and nothing records
+which queued messages the API already accepted. Use the default synchronous mailer.
+
 ## Support
 
 This project is supported by the MailChannels team on a best-effort basis. The best way to get support is to file an issue on GitHub: https://github.com/mailchannels/mailchannels-typo3/issues
@@ -36,7 +43,7 @@ python native/run.py
 The native runner resolves the locally built image tag to its image ID once and records that
 identity with the run; it does not require an image ID from another machine.
 
-Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 174 fresh-site
+Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 178 fresh-site
 checks. The native runner creates and deletes a disposable site/database; TLS
 fixtures remove their containers, network and temporary certificate material.
 Exact completion markers matter because TYPO3 may handle exceptions while exiting 0.
@@ -52,11 +59,30 @@ TYPO3 14.3.10 stock mail templates (unchanged since 14.3.7) fail when a FileUplo
 the core display resolver returns a string while the view helper marks the original
 value as iterable. Fluid then rejects the `f:for` input before any API request. The
 native suite reproduces this directly in Fluid without the MailChannels transport.
-This remains an unresolved stock-template compatibility gate for normal installations.
+The bug is in core and affects every mail transport.
+
+The extension ships opt-in copies of the 14.3.10 stock email templates that render an
+upload field as one value, so several files no longer break the mail. Everything else in
+them is unchanged. Add the path to each email finisher in your form definition:
+
+```yaml
+finishers:
+  - identifier: EmailToReceiver
+    options:
+      templateRootPaths:
+        20: 'EXT:mailchannels_email_api/Resources/Private/Frontend/Templates/Finishers/Email/'
+```
+
+Use the same option for `EmailToSender`, or set it once for all forms in your form setup
+under `prototypes.standard.finishersDefinition.<Finisher>.options.templateRootPaths`.
+Installing the extension does not change any form by itself. The native suite checks that
+these templates send stock multi-file mail once with both filenames, exact attachment bytes
+and unchanged list and scalar fields, with and without the proposed core patch. Remove the
+path once a TYPO3 release fixes the core bug.
 
 A proposed core patch is available in [native/core-display-fix](native/core-display-fix/README.txt).
 Run `python native/run.py --test-core-display-fix` to compare it in a separate disposable
-site. This mode passes the same 174 checks while requiring stock multi-file plain/HTML
+site. This mode passes the same 178 checks while requiring stock multi-file plain/HTML
 rendering and attachment preservation to succeed. It also checks array and scalar
 field rendering. The patch is never installed by the extension; upstream review,
 core regression tests and a supported released fix are still needed.

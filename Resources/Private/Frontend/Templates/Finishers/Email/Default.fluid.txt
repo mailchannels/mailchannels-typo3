@@ -1,0 +1,20 @@
+<f:comment>Copy of TYPO3 14.3.10 Default.fluid.txt (GPL-2.0-or-later). Only change: uploads render as one value, because core joins several files into a string while still flagging them multi-value, which makes f:for fail (see README).</f:comment>
+<f:layout name="SystemEmail" />
+<f:section name="Title">{title}</f:section>
+<f:section name="Main">
+<f:if condition="{messageBefore}">{messageBefore -> f:format.stripTags()}
+
+</f:if><f:if condition="!{hideFormValues}"><formvh:renderAllFormValues renderable="{form.formDefinition}" as="formValue"><f:spaceless>
+    <f:if condition="{formValue.isMultiValue} && {formValue.element.type} != 'FileUpload' && {formValue.element.type} != 'ImageUpload'">
+        <f:then>
+            <f:if condition="{formValue.isSection}"><f:then>*** {formvh:translateElementProperty(element: formValue.element, property: 'label', languageKey: languageKey)} ***</f:then><f:else>{formvh:translateElementProperty(element: formValue.element, property: 'label', languageKey: languageKey) -> f:format.stripTags()}: <f:for each="{formValue.processedValue}" as="singleValue">- {singleValue}
+            </f:for></f:else></f:if>
+        </f:then>
+        <f:else>
+            <f:if condition="{formValue.isSection}"><f:then>*** {formvh:translateElementProperty(element: formValue.element, property: 'label', languageKey: languageKey)} ***</f:then><f:else>{formvh:translateElementProperty(element: formValue.element, property: 'label', languageKey: languageKey) -> f:format.stripTags()}: <f:if condition="{formValue.processedValue}"><f:then>{formValue.processedValue -> f:format.raw()}</f:then><f:else>-</f:else></f:if></f:else></f:if>
+        </f:else>
+    </f:if>
+</f:spaceless>
+</formvh:renderAllFormValues></f:if><f:if condition="{messageAfter}">
+{messageAfter -> f:format.stripTags()}</f:if>
+</f:section>
