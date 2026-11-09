@@ -18,7 +18,7 @@ $metadata=json_decode(file_get_contents($installed.'/composer.json'),true,512,JS
 check($metadata['type']==='typo3-cms-extension' && $metadata['extra']['typo3/cms']['extension-key']==='mailchannels_email_api','TYPO3 package identity present');
 $_EXTKEY='mailchannels_email_api';require $installed.'/ext_emconf.php';
 check($EM_CONF[$_EXTKEY]['state']==='alpha' && $EM_CONF[$_EXTKEY]['version']==='0.0.0','legacy metadata explicitly unreleased alpha');
-check($EM_CONF[$_EXTKEY]['constraints']['depends']['typo3']==='14.3.7-14.3.7' && $metadata['require']['typo3/cms-core']==='14.3.7','metadata core constraints agree');
+check($EM_CONF[$_EXTKEY]['constraints']['depends']['typo3']==='14.3.10-14.3.10' && $metadata['require']['typo3/cms-core']==='14.3.10','metadata core constraints agree');
 $container=new ContainerBuilder();
 // Load TYPO3's actual attribute registrations/compiler passes, not a copied callback.
 $core=\Composer\InstalledVersions::getInstallPath('typo3/cms-core');

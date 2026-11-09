@@ -9,7 +9,7 @@ checks configuration before ordinary core mail dispatch. It preserves supported
 recipient roles, plain/HTML bodies and attachments, uses verified HTTPS, and does
 not automatically retry or fall back to SMTP.
 
-Current validation is limited to TYPO3 14.3.7, PHP 8.4.26 and SQLite. See
+Current validation is limited to TYPO3 14.3.10, PHP 8.4.26 and SQLite. See
 [configuration and limitations](README.txt) before evaluating it.
 GPL-2.0-or-later; see [LICENSE](LICENSE).
 
@@ -48,7 +48,7 @@ provider delivery or directory publication. JavaScript/browser tests are not inc
 
 ## Native form compatibility
 
-TYPO3 14.3.7 stock mail templates fail when a FileUpload value is an ObjectStorage:
+TYPO3 14.3.10 stock mail templates (unchanged since 14.3.7) fail when a FileUpload value is an ObjectStorage:
 the core display resolver returns a string while the view helper marks the original
 value as iterable. Fluid then rejects the `f:for` input before any API request. The
 native suite reproduces this directly in Fluid without the MailChannels transport.
@@ -84,8 +84,8 @@ controls, content-UID namespaces, Unicode payloads, malformed email, missing/tam
 state, signed GET and a cacheable render action under `USER`. Confirmation is observed
 in returned markup; only the mailer's downstream API client is replaced by a memory sink.
 Native anonymous frontend authentication is initialized for the stock honeypot.
-Missing-state POST and signed GET return first-page blank-state bytes and no email or
-completion, while stock Fluid re-displays their submitted input after controller forwarding.
+Missing-state POST and signed GET return a first page with a blank decoded form state and no
+email or completion (since 14.3.10 each render signs a fresh honeypot name into the state), while stock Fluid re-displays their submitted input after controller forwarding.
 This does not prove accepted runtime values, browser sessions, CSRF, cross-user ownership,
 HTTP middleware, page-cache responses or cached perform rescheduling.
 
@@ -106,9 +106,11 @@ correction. Multipart temporary files are distinct from those persistent FAL upl
 This slice proves the ordinary anonymous single-file workflow on the pinned runtime. It does not
 prove cookie-bound CSRF, cross-user file ownership, browser cookie policy, a page-cache hit,
 concurrency, expiry or provider delivery. Warm GET is an observation only.
-A further 16 HTTP checks submit two distinct text files with invalid email through a standard
-multiple upload form and stock Default mail templates. The same submitter reuses its actual cookie
-and returned signed controls for a second invalid submission and an email-only correction, without
+Since TYPO3 14.3.10 the honeypot name is kept in the signed form state, so these submissions
+create no frontend cookie or anonymous session; the returned signed form session carries
+the workflow. A further 16 HTTP checks submit two distinct text files with invalid email through a standard
+multiple upload form and stock Default mail templates. The same submitter reuses its
+returned signed controls for a second invalid submission and an email-only correction, without
 new file parts. Both indexed FAL files, pointer order and exact bytes remain intact. Stock TYPO3
 returns the configured finisher failure marker and a sanitized message_unsupported diagnostic,
 with no API payload. The opt-in disposable core patch instead requires one confirmation and one

@@ -12,7 +12,7 @@ This project is supported by the MailChannels team on a best-effort basis. The b
 
 If you are a MailChannels customer and have a problem with the operation of the MailChannels service, you can get support at https://support.mailchannels.com/
 
-Current bounds:TYPO3 core14.3.7 and PHP8.4 only. These narrow package constraints
+Current bounds:TYPO3 core14.3.10 and PHP8.4 only. These narrow package constraints
 match the available fixtures, not a completed supported-version/deployment matrix.
 The package requires Composer-managed Guzzle8/PSR7v3 and Symfony7.4 dependencies.
 Classic mode installation and TYPO3's legacy metadata deprecation need review;
@@ -28,7 +28,7 @@ form/backend mail, permissions, lifecycle, serialization and all required queues
 The standalone fixture verifies full Composer-site boot, FluidEmail conversion,
 native reset tokens, form finishers, stock single-file templates, persisted FAL references, custom-template multi-file
 attachments, finisher chains and removal/recovery. Stock multi-file templates fail
-in TYPO3 14.3.7 before API dispatch: the display value is a string but the native
+in TYPO3 14.3.10 (unchanged since 14.3.7) before API dispatch: the display value is a string but the native
 view helper marks the input as iterable. This remains a release compatibility gate.
 A confirmation failure does not roll back an earlier accepted receiver email;
 rendering the chain again sends both emails again. Do not blindly replay submissions. It does not verify browser submission or safe queue handling. Direct-mode configuration needs protected server settings for the

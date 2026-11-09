@@ -5,14 +5,14 @@
   "license": "GPL-2.0-or-later",
   "require": {
     "php": "~8.4.0",
-    "typo3/cms-core": "14.3.7",
-    "typo3/cms-backend": "14.3.7",
-    "typo3/cms-frontend": "14.3.7",
-    "typo3/cms-install": "14.3.7",
-    "typo3/cms-fluid": "14.3.7",
-    "typo3/cms-extbase": "14.3.7",
-    "typo3/cms-form": "14.3.7",
-    "typo3/cms-felogin": "14.3.7",
+    "typo3/cms-core": "14.3.10",
+    "typo3/cms-backend": "14.3.10",
+    "typo3/cms-frontend": "14.3.10",
+    "typo3/cms-install": "14.3.10",
+    "typo3/cms-fluid": "14.3.10",
+    "typo3/cms-extbase": "14.3.10",
+    "typo3/cms-form": "14.3.10",
+    "typo3/cms-felogin": "14.3.10",
     "mailchannels/typo3-email-api": "dev-main"
   },
   "repositories": [

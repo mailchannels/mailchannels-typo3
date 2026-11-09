@@ -23,6 +23,22 @@ use TYPO3\CMS\Frontend\Page\{PageInformation, PageParts};
 SystemEnvironmentBuilder::run(1, SystemEnvironmentBuilder::REQUESTTYPE_CLI);
 $container = Bootstrap::init($loader);
 $count = 0;
+/**
+ * Decoded form state without its honeypot names. Since TYPO3 14.3.10 each render signs a fresh random
+ * honeypot name into __state, so a blank state is compared by content rather than by bytes.
+ */
+function stateContent(string $signed): array
+{
+    global $container;
+    $serialized = $container->get(\TYPO3\CMS\Core\Crypto\HashService::class)->validateAndStripHmac(
+        $signed, \TYPO3\CMS\Form\Security\HashScope::FormState->prefix(), \TYPO3\CMS\Core\Crypto\HashAlgo::SHA3_256);
+    $state = unserialize(base64_decode($serialized), ['allowed_classes' => [\TYPO3\CMS\Form\Domain\Runtime\FormState::class]]);
+    if (!$state instanceof \TYPO3\CMS\Form\Domain\Runtime\FormState) {
+        throw new RuntimeException('Form state did not decode');
+    }
+    return [$state->getLastDisplayedPageIndex(), $state->getFormValues(), $state->isFormSubmitted()];
+}
+
 function check(bool $ok, string $label): void
 {
     global $count;
@@ -254,9 +270,9 @@ try {
     $output = dispatch('POST', 101, $controls['action'], $missing);
     $returned = formControls($output)['fields']['tx_form_formframework']['controllerfixture-101'];
     // Stock Fluid replays original arguments after perform forwards, even with blank runtime state.
-    check($returned['__state'] === $hidden['__state'] && $returned['__currentPage'] === '1'
+    check(stateContent($returned['__state']) === stateContent($hidden['__state']) && $returned['__currentPage'] === '1'
         && $returned['visitor'] === $values['visitor'] && $returned['email'] === $values['email'],
-        'missing-state POST returns first page and blank-state bytes with stock replayed input');
+        'missing-state POST returns first page and blank state with stock replayed input');
     check(count($payloads) === 1 && !str_contains($output, 'CONTROLLER-COMPLETE'),
         'missing state response has no completion and records no additional API payload');
     $tampered = $submitted;
@@ -278,9 +294,9 @@ try {
         'tampered state handling produces no completion output or additional API payload');
     $output = dispatch('GET', 101, $controls['action'], $submitted);
     $returned = formControls($output)['fields']['tx_form_formframework']['controllerfixture-101'];
-    check($returned['__state'] === $hidden['__state'] && $returned['__currentPage'] === '1'
+    check(stateContent($returned['__state']) === stateContent($hidden['__state']) && $returned['__currentPage'] === '1'
         && $returned['visitor'] === $values['visitor'] && $returned['email'] === $values['email'],
-        'signed GET returns first page and blank-state bytes with stock replayed input');
+        'signed GET returns first page and blank state with stock replayed input');
     check(count($payloads) === 1 && !str_contains($output, 'CONTROLLER-COMPLETE'),
         'signed GET response has no completion and records no additional API payload');
     $output = dispatch('POST', 101, $controls['action'], $submitted, true);
