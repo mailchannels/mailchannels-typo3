@@ -15,6 +15,7 @@ jobs:
           python3 -m venv .ci-venv
           .ci-venv/bin/python -m pip install cryptography==45.0.3
           docker build -t mailchannels-typo3-contract:php84 .
+          docker pull selenium/standalone-chromium@sha256:08fd293648e126275782c616a61f4ee1d90cf413b1972ebc35dbd054d6789f55
       - name: Install locked contract dependencies
         run: docker run --rm -v "$PWD:/app" -w /app/contract mailchannels-typo3-contract:php84 composer install --no-interaction --prefer-dist --no-progress --no-plugins --no-scripts
       - name: Offline transport contracts

@@ -11,7 +11,7 @@ Baseline (asserts the known core failure):
 Proposed fix (requires stock multi-file mail to succeed):
   python native/run.py --test-core-display-fix
 
-Each command installs a fresh locked TYPO314.3.10 site and runs178checks, including
+Each command installs a fresh locked TYPO314.3.10 site and runs185checks, including
 51form checks. The optional patch is applied only to that site's vendor file before
 bootstrap. apply.py asserts the original and resulting SHA256 so unreviewed core
 source changes cannot silently pass. Both sites and patched vendor trees are removed.

@@ -32,7 +32,8 @@ in TYPO3 14.3.10 (unchanged since 14.3.7) before API dispatch: the display value
 view helper marks the input as iterable. Opt-in template copies under
 Resources/Private/Frontend/Templates/Finishers/Email/ avoid this; see README.md.
 A confirmation failure does not roll back an earlier accepted receiver email;
-rendering the chain again sends both emails again. Do not blindly replay submissions. It does not verify browser submission or safe queue handling. Direct-mode configuration needs protected server settings for the
+rendering the chain again sends both emails again. Do not blindly replay submissions. A headless-Chromium form submission test is included (see README.md); queued sending is
+not supported. Direct-mode configuration needs protected server settings for the
 API key and exact allowed sender list; there is no admin secret-storage UI.
 
 The guard rejects DSN/spool conflicts and stale credential/policy/routing snapshots
