@@ -13,6 +13,8 @@ commands=[]
 http=None
 http_results=root/'.native-work'/(name+'-http')
 image='mailchannels-typo3-contract:php84'
+# Pinned Chromium + chromedriver for the real-browser form test (pull it once; runs offline).
+browser_image='selenium/standalone-chromium@sha256:08fd293648e126275782c616a61f4ee1d90cf413b1972ebc35dbd054d6789f55'
 workers=[]
 def run(args,timeout=120):
     if args[:2]==['docker','run'] and '--name' not in args:
@@ -104,6 +106,16 @@ throw new RuntimeException('HTTP readiness deadline');
     assert sum(line.startswith('PASS ') for line in original.splitlines())==24,text
     assert sum(line.startswith('PASS ') for line in multi.splitlines())==16,text
     print(text,end='',flush=True)
+    text=run(['docker','exec',http,'php','-d','disable_functions=mail','/app/native/browser-setup.php'],timeout=60)
+    assert 'TYPO3_BROWSER_SETUP_COMPLETE' in text,text
+    print(text,end='',flush=True)
+    browser=run(['docker','image','inspect',browser_image,'--format','{{.Id}}']).strip()
+    text=run(['docker','run','--rm','--network','container:'+http,'--shm-size','512m',
+              '-v',str(root)+':/app:ro','-e','CAPTURE=/app/.native-work/'+name+'/frontend-capture.jsonl',
+              '--entrypoint','/home/seluser/venv/bin/python3',browser,'/app/native/browser.py'],timeout=180)
+    assert 'TYPO3_BROWSER_COMPLETE 7 checks; no provider calls' in text,text
+    assert sum(line.startswith('PASS ') for line in text.splitlines())==7,text
+    print(text,end='',flush=True)
     run(['docker','logs',http],timeout=10)
     run(['docker','stop','--time','3',http])
     run(['docker','rm',http])
@@ -121,7 +133,7 @@ throw new RuntimeException('HTTP readiness deadline');
         assert sum(line.startswith('PASS ') for line in text.splitlines())==5,text
         print(text,end='',flush=True)
     assert (root/'Classes/Mail/ApiTransport.php').exists(),'Composer removal changed source candidate'
-    print('TYPO3_NATIVE_AND_LIFECYCLE_COMPLETE 178 checks',flush=True)
+    print('TYPO3_NATIVE_AND_LIFECYCLE_COMPLETE 185 checks',flush=True)
 finally:
     try:
         http_results.mkdir()

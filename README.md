@@ -34,6 +34,7 @@ networks, and no provider email. Run from this repository root:
 
 ```sh
 docker build -t mailchannels-typo3-contract:php84 .
+docker pull selenium/standalone-chromium@sha256:08fd293648e126275782c616a61f4ee1d90cf413b1972ebc35dbd054d6789f55
 docker run --rm -v "$PWD:/app" -w /app/contract mailchannels-typo3-contract:php84 composer install --no-interaction --prefer-dist --no-progress --no-plugins --no-scripts
 python check.py
 python tls/run.py
@@ -43,15 +44,22 @@ python native/run.py
 The native runner resolves the locally built image tag to its image ID once and records that
 identity with the run; it does not require an image ID from another machine.
 
-Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 178 fresh-site
+Expected evidence: 155 contract checks, 8 local HTTPS scenarios, and 185 fresh-site
 checks. The native runner creates and deletes a disposable site/database; TLS
 fixtures remove their containers, network and temporary certificate material.
 Exact completion markers matter because TYPO3 may handle exceptions while exiting 0.
 
 Native checks cover full container registration, Fluid rendering, reset token
 creation, form finisher execution, stock templates, stored-file/FileReference attachments and finisher-chain outcomes,
-and removal/recovery. They do not prove browser submission, upload authorization,
-provider delivery or directory publication. JavaScript/browser tests are not included.
+and removal/recovery. They do not prove upload authorization, provider delivery or
+directory publication.
+
+A real-browser test drives headless Chromium (the pinned image above, sharing only the test
+server's loopback network) through the stock multiple-upload form, using the extension's
+opt-in email templates on stock core. It submits a Unicode name, an invalid email and two
+files, checks the native alert and that nothing is sent, then corrects the email and checks
+that exactly one message is sent with both attachments byte for byte and both filenames in
+the plain and HTML bodies. Without the opt-in templates the same test fails on stock core.
 
 ## Native form compatibility
 
@@ -82,7 +90,7 @@ path once a TYPO3 release fixes the core bug.
 
 A proposed core patch is available in [native/core-display-fix](native/core-display-fix/README.txt).
 Run `python native/run.py --test-core-display-fix` to compare it in a separate disposable
-site. This mode passes the same 178 checks while requiring stock multi-file plain/HTML
+site. This mode passes the same 185 checks while requiring stock multi-file plain/HTML
 rendering and attachment preservation to succeed. It also checks array and scalar
 field rendering. The patch is never installed by the extension; upstream review,
 core regression tests and a supported released fix are still needed.
