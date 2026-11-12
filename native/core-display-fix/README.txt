@@ -1,6 +1,6 @@
 Proposed TYPO3 core display-value fix — test-only, not installed by this extension
 
-The stock14.3.7 RenderFormValueViewHelper labels an ObjectStorage input as multi-value
+The stock14.3.10 RenderFormValueViewHelper (unchanged since 14.3.7) labels an ObjectStorage input as multi-value
 although FileUpload processes it into a joined filename string. Default mail HTML
 then passes that string to f:for and fails before transport. proposed.patch derives
 isMultiValue from the processed display value and preserves both raw and processed
@@ -11,7 +11,7 @@ Baseline (asserts the known core failure):
 Proposed fix (requires stock multi-file mail to succeed):
   python native/run.py --test-core-display-fix
 
-Each command installs a fresh locked TYPO314.3.7 site and runs89checks, including
+Each command installs a fresh locked TYPO314.3.10 site and runs89checks, including
 47form checks. The optional patch is applied only to that site's vendor file before
 bootstrap. apply.py asserts the original and resulting SHA256 so unreviewed core
 source changes cannot silently pass. Both sites and patched vendor trees are removed.

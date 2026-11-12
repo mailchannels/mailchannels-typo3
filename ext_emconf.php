@@ -8,7 +8,7 @@ $EM_CONF[$_EXTKEY] = [
     'author_email' => 'dev@mailchannels.com',
     'version' => '0.0.0',
     'constraints' => [
-        'depends' => ['typo3' => '14.3.7-14.3.7', 'php' => '8.4.0-8.4.99'],
+        'depends' => ['typo3' => '14.3.10-14.3.10', 'php' => '8.4.0-8.4.99'],
         'conflicts' => [],
         'suggests' => [],
     ],

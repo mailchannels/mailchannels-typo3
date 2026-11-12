@@ -208,20 +208,19 @@ try {
     $cookie = $jar->getCookieByName('fe_typo_user');
     $captures = capture();
     $uploadCapture = end($captures);
-    check($cookie !== null && $cookie->getValue() !== ''
-        && $uploadCapture['anonymous_session_persisted'],
-        'ordinary_validation_error_with_upload: emitted cookie/native anonymous session persisted');
+    // Since TYPO3 14.3.10 honeypot names live in the signed form state, so no frontend session is needed.
+    check($cookie === null && $uploadCapture['request_cookie_sha256'] === null
+        && !$uploadCapture['anonymous_session_persisted'],
+        'ordinary_validation_error_with_upload: no cookie or persisted anonymous session');
     $values['email'] = 'zoe@example.com';
     $html = request('same_submitter_corrects_form', $jar, $returned,
         ['email' => $values['email']]);
     $captures = capture();
     $correctionCapture = end($captures);
     check(substr_count($html, 'FRONTEND-HTTP-COMPLETE') === 1
-        && $correctionCapture['request_cookie_sha256'] === hash('sha256', $cookie->getValue())
-        && $correctionCapture['session_identifier_sha256']
-            === $uploadCapture['session_identifier_sha256']
-        && $correctionCapture['anonymous_session_persisted'],
-        'same_submitter_corrects_form: actual cookie/session; email-only correction completes');
+        && $correctionCapture['request_cookie_sha256'] === null
+        && !$correctionCapture['anonymous_session_persisted'],
+        'same_submitter_corrects_form: signed form session alone; email-only correction completes');
     $payload = payloads()[0] ?? [];
     $attachment = $payload['attachments'][0] ?? [];
     check(count(payloads()) === 1 && $payload['subject'] === 'Contact ' . $values['visitor']
@@ -243,8 +242,9 @@ try {
     $independent = controls($html);
     check(!str_contains($html, 'attachment.txt')
         && !str_contains(implode('', array_keys($independent['fields'])), '[__submittedFiles]')
-        && $independentJar->getCookieByName('fe_typo_user')?->getValue() !== $cookie->getValue(),
-        'independent_ordinary_submitter: own fresh form/cookie without prior upload preview');
+        && ($independent['fields'][$prefix . '[__session]'] ?? '') !== $returned['fields'][$prefix . '[__session]']
+        && $independentJar->getCookieByName('fe_typo_user') === null,
+        'independent_ordinary_submitter: own fresh form session without prior upload preview');
     check(count(payloads()) === 1 && inventory() === $afterUpload,
         'independent_ordinary_submitter: ordinary GET preserves mail/upload inventory');
     $html = request('required_upload_absent', $independentJar, $independent, $values);

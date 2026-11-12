@@ -113,7 +113,15 @@ function submit(string $method, array $fields, ?string $context = 'USER_INT'): a
     try {
         $form = $container->get(ArrayFormFactory::class)->build($definition, 'standard', $request);
         $runtime = $form->bind($request);
-        $html = (string)$runtime->render();
+        try {
+            $html = (string)$runtime->render();
+        } catch (\RuntimeException $error) {
+            // Since TYPO3 14.3.10 the form action URI needs a content object (#1779442754); binding already ran.
+            if ($context !== null || $error->getCode() !== 1779442754) {
+                throw $error;
+            }
+            $html = '';
+        }
     } finally {
         // The factory consumes queued finishers only when it builds them; drain any leftovers.
         foreach ([$email, $confirmation] as $finisher) {
@@ -225,8 +233,9 @@ try {
         [$runtime, $html, $sent] = submit('POST', $cachedValid, $context === '' ? null : $context);
         check(firstPage($runtime) && $runtime->getFormSession() === null && $runtime['visitor'] === null && $runtime['email'] === null,
             "$label POST discards signed state and values into fresh first page");
-        check(nothingSent($sent, $html) && str_contains($html, '<form'),
-            "$label POST rerenders native form with zero mail and zero completion");
+        check(nothingSent($sent, $html) && ($context === '' ? $html === '' : str_contains($html, '<form')),
+            $context === '' ? "$label POST sends zero mail and core refuses to render the form action"
+                : "$label POST rerenders native form with zero mail and zero completion");
     }
     [$runtime, $html, $sent] = submit('POST', $cachedValid);
     check($runtime['visitor'] === $values['visitor'] && $runtime['email'] === $values['email'],

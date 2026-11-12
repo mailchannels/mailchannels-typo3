@@ -42,13 +42,13 @@ if ($yaml['identifier'] !== 'frontendmultiuploadfixture'
 
 $authorities = [
     'typo3/cms-form/Classes/Domain/Model/FormElements/FileUpload.php'
-        => '0ebd38338f96125b3c01f8cd4249f186fccfe5c0ae2a14f71e2e012090b5496a',
+        => '62107935446b1e8c0da529117add132534a06ddfe62f22cd3723da985e630178',
     'typo3/cms-form/Classes/Mvc/Property/PropertyMappingConfiguration.php'
-        => '1b69142202717fa0e6bd09153edce5ac37de2512f29389d5dd9199e4f4309b71',
+        => '0751dd277294a26fb1166a4652f7ef176a8cfd5fa3207a1df7d32900ea1b31ca',
     'typo3/cms-form/Classes/Mvc/Property/TypeConverter/UploadedFileReferenceConverter.php'
         => 'c05e550007e3fbc86cb64c03cf965c9779afc36cf1c3a81ba230497c0455965a',
     'typo3/cms-form/Classes/ViewHelpers/Form/UploadedResourceViewHelper.php'
-        => 'fbffba6b460b255267bd0a365501b6bcdbeb4fc85780cf9ddd53a85b466cb00f',
+        => '7239b26f35a736c87d0f45300b45d4c44f34fd333b133554171eb48869e5d976',
     'typo3/cms-form/Classes/ViewHelpers/RenderFormValueViewHelper.php'
         => 'f3535bab9f5b705f1acc12be98277f16b01be2fef9803ae08cede3ce036830b6',
     'typo3/cms-form/Classes/Domain/Finishers/EmailFinisher.php'
@@ -225,9 +225,10 @@ try {
         'M08 multiupload_validation_two_uploads: exact FAL rows sizes hashes bytes; old intact');
     $cookie = $jar->getCookieByName('fe_typo_user');
     $uploadCapture = $observations[$case]['capture'];
-    check($cookie !== null && $cookie->getValue() !== ''
-        && $uploadCapture['anonymous_session_persisted'],
-        'M09 multiupload_validation_two_uploads: actual cookie native anonymous session persisted');
+    // Since TYPO3 14.3.10 honeypot names live in the signed form state, so no frontend session is needed.
+    check($cookie === null && $uploadCapture['request_cookie_sha256'] === null
+        && !$uploadCapture['anonymous_session_persisted'],
+        'M09 multiupload_validation_two_uploads: no cookie or persisted anonymous session');
     $case = 'multiupload_same_submitter_invalid_again';
     $html = request($case, $jar, $returned);
     $again = controls($html);
@@ -240,11 +241,9 @@ try {
         && pointers($again) === $pointerFields,
         'M10 multiupload_same_submitter_invalid_again: own values pointers session retained');
     $againCapture = $observations[$case]['capture'];
-    check($againCapture['request_cookie_sha256'] === hash('sha256', $cookie->getValue())
-        && $againCapture['session_identifier_sha256']
-            === $uploadCapture['session_identifier_sha256']
-        && $againCapture['anonymous_session_persisted'],
-        'M11 multiupload_same_submitter_invalid_again: actual cookie same persisted session');
+    check($againCapture['request_cookie_sha256'] === null
+        && !$againCapture['anonymous_session_persisted'],
+        'M11 multiupload_same_submitter_invalid_again: still no cookie or persisted session');
     check(count(payloads()) === $initialPayloads && inventory() === $afterUpload
         && diskFiles(inventory()) === $retainedDisk,
         'M12 multiupload_same_submitter_invalid_again: no upload payload row folder or byte delta');
@@ -255,10 +254,9 @@ try {
     $sent = $again['fields'];
     $sent[$prefix . '[email]'] = 'zoe@example.com';
     check($observations[$case]['sent_fields'] === $sent
-        && $correction['request_cookie_sha256'] === hash('sha256', $cookie->getValue())
-        && $correction['session_identifier_sha256'] === $uploadCapture['session_identifier_sha256']
-        && $correction['anonymous_session_persisted'],
-        'M13 multiupload_same_submitter_corrects_email: own controls email-only; same session');
+        && $correction['request_cookie_sha256'] === null
+        && !$correction['anonymous_session_persisted'],
+        'M13 multiupload_same_submitter_corrects_email: own controls email-only; form session only');
     if ($mode === 'stock') {
         $expectedDiagnostics = [['level' => 'error', 'exception_chain' => [
             ['class' => \TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException::class,
