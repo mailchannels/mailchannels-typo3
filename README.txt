@@ -29,14 +29,15 @@ The standalone fixture verifies full Composer-site boot, FluidEmail conversion,
 native reset tokens, form finishers, stock single-file templates, persisted FAL references, custom-template multi-file
 attachments, finisher chains and removal/recovery. Stock multi-file templates fail
 in TYPO3 14.3.10 (unchanged since 14.3.7) before API dispatch: the display value is a string but the native
-view helper marks the input as iterable. This remains a release compatibility gate.
+view helper marks the input as iterable. Opt-in template copies under
+Resources/Private/Frontend/Templates/Finishers/Email/ avoid this; see README.md.
 A confirmation failure does not roll back an earlier accepted receiver email;
 rendering the chain again sends both emails again. Do not blindly replay submissions. It does not verify browser submission or safe queue handling. Direct-mode configuration needs protected server settings for the
 API key and exact allowed sender list; there is no admin secret-storage UI.
 
 The guard rejects DSN/spool conflicts and stale credential/policy/routing snapshots
 before ordinary core dispatch. Native spool replay can bypass that event; queued
-sending is not implemented safely. No automatic retry or SMTP fallback is supplied.
+sending is not supported in this release. No automatic retry or SMTP fallback is supplied.
 Uncertain failures can follow provider acceptance, so do not resend blindly.
 The returned Symfony message ID is local, not proof of provider delivery/identity.
 

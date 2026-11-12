@@ -51,6 +51,15 @@ if ($patched) {
 } else {
     check($coreFailure,'stock multi-file rendering fails in native Fluid without MailChannels transport');
 }
+// The extension's opt-in templates (stock 14.3.10 copies that render uploads as one value)
+// must make the failing stock multi-file case work in both modes, as integrators configure them.
+$compat=array_replace($stock,['templateRootPaths'=>$stock['templateRootPaths']+[20=>'EXT:mailchannels_email_api/Resources/Private/Frontend/Templates/Finishers/Email/']]);
+$subject->setOptions($compat);$context=new \TYPO3\CMS\Form\Domain\Finishers\FinisherContext($runtime,$request);
+$before=count($payloads);$subject->execute($context);
+check(!$context->isCancelled() && count($payloads)===$before+1,'shipped compatibility templates let stock multi-file finisher send once');
+$p=$payloads[$before];
+check(array_column($p['attachments'],'filename')===['fixture.txt','second.txt'] && array_map(fn($a)=>base64_decode($a['content'],true),$p['attachments'])===[$bytes,$secondBytes],'compatibility templates preserve both referenced filenames and binary contents');
+check(str_contains($p['content'][0]['value'],'fixture.txt') && str_contains($p['content'][0]['value'],'second.txt') && str_contains($p['content'][1]['value'],'fixture.txt') && str_contains($p['content'][1]['value'],'second.txt') && str_contains($p['content'][0]['value'],'Visitor ✓') && str_contains($p['content'][1]['value'],'Visitor ✓'),'compatibility templates render both filenames and form values in plain and HTML');
 $before=count($payloads);
 // Separate transport coverage uses the existing custom template. This does not
 // establish compatibility of the failing stock multi-file template.
@@ -85,6 +94,9 @@ $before=count($payloads);$subject->execute($context);$p=$payloads[$before];
 check(!$context->isCancelled() && count($payloads)===$before+1,'stock array-valued field sends once');
 check(str_contains($p['content'][0]['value'],'Choice One') && str_contains($p['content'][0]['value'],'Choice Two') && str_contains($p['content'][1]['value'],'Choice One') && str_contains($p['content'][1]['value'],'Choice Two'),'stock array display values retain both choices in plain and HTML');
 check(str_contains($p['content'][0]['value'],'Visitor ✓') && str_contains($p['content'][1]['value'],'Visitor ✓'),'stock scalar display value remains rendered beside array field');
+$subject->setOptions($compat);$context=new \TYPO3\CMS\Form\Domain\Finishers\FinisherContext($runtime,$request);
+$before=count($payloads);$subject->execute($context);$p=$payloads[$before];
+check(!$context->isCancelled() && str_contains($p['content'][0]['value'],'Choice One') && str_contains($p['content'][0]['value'],'Choice Two') && str_contains($p['content'][1]['value'],'Choice One') && str_contains($p['content'][1]['value'],'Choice Two'),'compatibility templates keep array display values as lists');
 
 // Run the real FormRuntime finisher loop through public render(). Only the
 // completed-page state is seeded; no replacement loop or finisher subclass.

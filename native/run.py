@@ -56,8 +56,8 @@ try:
     assert sum(line.startswith('PASS ') for line in text.splitlines())==13,text
     print(text,end='',flush=True)
     text=run(base+['-e','TYPO3_TEST_CORE_DISPLAY_FIX='+str(int(args.test_core_display_fix)),image,'php','-d','disable_functions=mail','/app/native/form-probe.php'])
-    assert 'TYPO3_FORM_COMPLETE 47 checks; no provider calls' in text,text
-    assert sum(line.startswith('PASS ') for line in text.splitlines())==47,text
+    assert 'TYPO3_FORM_COMPLETE 51 checks; no provider calls' in text,text
+    assert sum(line.startswith('PASS ') for line in text.splitlines())==51,text
     print(text,end='',flush=True)
     text=run(base+[image,'php','-d','disable_functions=mail','/app/native/form-submission-probe.php'])
     assert 'TYPO3_FORM_SUBMISSION_COMPLETE 25 checks; no provider calls' in text,text
@@ -121,7 +121,7 @@ throw new RuntimeException('HTTP readiness deadline');
         assert sum(line.startswith('PASS ') for line in text.splitlines())==5,text
         print(text,end='',flush=True)
     assert (root/'Classes/Mail/ApiTransport.php').exists(),'Composer removal changed source candidate'
-    print('TYPO3_NATIVE_AND_LIFECYCLE_COMPLETE 174 checks',flush=True)
+    print('TYPO3_NATIVE_AND_LIFECYCLE_COMPLETE 178 checks',flush=True)
 finally:
     try:
         http_results.mkdir()
