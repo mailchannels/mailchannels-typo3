@@ -1,9 +1,8 @@
-MailChannels Email API for TYPO3 — unreleased candidate
+MailChannels Email API for TYPO3 — 0.1.1 alpha
 
 Composer package:mailchannels/typo3-email-api
-TER extension key:mailchannels_email_api (registered 2026-10-29 to the MailChannels
-TYPO3 publisher account; no version uploaded). The package is not on Packagist. Version0.0.0 in
-legacy metadata is a development placeholder, not a published release.
+TER extension key:mailchannels_email_api (MailChannels TYPO3 publisher account).
+Version:0.1.1, state alpha.
 GPL-2.0-or-later; see LICENSE.
 
 Support
@@ -22,8 +21,8 @@ Installation does not configure MAIL routing. The only service is a pre-send gua
 that intervenes when MailChannels is selected or an older Mailer retains its
 transport. Existing unrelated null/mbox/SMTP settings remain unchanged.
 
-Do not activate this candidate on production. First validate a disposable installed
-TYPO3 site, including automatic listener registration, Fluid/body rendering, reset/
+This is an alpha. Before switching production mail, validate it on a staging copy of
+your TYPO3 site, including automatic listener registration, Fluid/body rendering, reset/
 form/backend mail, permissions, lifecycle, serialization and all required queues.
 The standalone fixture verifies full Composer-site boot, FluidEmail conversion,
 native reset tokens, form finishers, stock single-file templates, persisted FAL references, custom-template multi-file
@@ -47,14 +46,9 @@ alternatives and documented MIME attachment trees. Raw RFC messages, provider-
 restricted preassigned Message-ID and unsupported/ambiguous MIME/header combinations
 reject. Trusted server composition must authorize file/stream data sources.
 
-Before publishing:assign a named TYPO3.org maintainer, verify key/package availability,
-complete the installed-site and queue requirements, review dependency/security and
-release artifacts, broaden version claims only with evidence, then publish source,
-Packagist and TER separately and verify public installation/discovery.
-
 Removal and rollback for a disposable reviewed deployment
 1. Stop/coordinate mail-producing workers and audit pending queues. Native queue
-   replay is not safe/supported by this candidate; do not flush uncertain messages.
+   replay is not safe/supported by this extension; do not flush uncertain messages.
 2. In the protected server configuration, explicitly select null or another verified
    transport before removing this package. Review DSN/spool overrides too. Preserve
    a protected rollback copy without exposing keys in tickets/logs.

@@ -1233,7 +1233,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Unreleased MailChannels Email API transport candidate for TYPO3",
+            "description": "Alpha TYPO3 mail transport for the MailChannels Email API",
             "support": {
                 "issues": "https://github.com/mailchannels/mailchannels-typo3/issues"
             },
